@@ -1,0 +1,29 @@
+<link rel="import" href="../polymer/polymer.html" />
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html" />
+<link rel="import" href="../t-button/t-button.html">
+<link rel="import" href="../t-input/t-input.html">
+<link rel="import" href="../t-text-container/travel-element-styles.html">
+
+<dom-module id="t-points-oayment">
+<template>
+	
+        <style include="iron-flex"></style>
+        <style include="travel-element-styles">
+        </style>
+        <div>Click here if you want to pay with points</div>
+        <div>Total points avilable   21,214</div>
+        I want to use
+        <t-input class="margin-bottom-large" id="securityAnswer" name="securityAnswer" error-message="You missed this." label="Points" required></t-input>
+        points
+        <t-button id="btnGetUser" class="primary block" label="Apply"></t-button>
+</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is: "t-points-oayment",
+
+		properties:{
+		}
+	});	
+</script>
