@@ -3,27 +3,33 @@
 <link rel="import" href="../t-button/t-button.html">
 <link rel="import" href="../t-input/t-input.html">
 <link rel="import" href="../t-text-container/travel-element-styles.html">
-
 <dom-module id="t-points-oayment">
-<template>
-	
+    <template>
         <style include="iron-flex"></style>
         <style include="travel-element-styles">
+
         </style>
         <div>Click here if you want to pay with points</div>
-        <div>Total points avilable   21,214</div>
-        I want to use
-        <t-input class="margin-bottom-large" id="securityAnswer" name="securityAnswer" error-message="You missed this." label="Points" required></t-input>
-        points
+        <br>
+        <div>Total points avilable - 21,214</div>
+        <div class="vertical-margin layout horizontal center">
+            <div class="horizontal-margin flex countryContainer style-scope">
+                I want to use
+            </div>
+            <div class="flex style-scope">
+                <t-input class="margin-bottom-large" id="securityAnswer" name="securityAnswer" error-message="You missed this." label="Points" required></t-input>
+            </div>
+            <div class="flex style-scope">
+                &nbsp; points
+            </div>
+        </div>
         <t-button id="btnGetUser" class="primary block" label="Apply"></t-button>
-</template>
+    </template>
 </dom-module>
-
 <script>
-	Polymer({
-		is: "t-points-oayment",
+Polymer({
+    is: "t-points-oayment",
 
-		properties:{
-		}
-	});	
+    properties: {}
+});
 </script>
