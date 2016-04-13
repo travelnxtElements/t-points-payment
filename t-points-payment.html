@@ -3,7 +3,7 @@
 <link rel="import" href="../t-button/t-button.html">
 <link rel="import" href="../t-input/t-input.html">
 <link rel="import" href="../t-text-container/travel-element-styles.html">
-<dom-module id="t-points-oayment">
+<dom-module id="t-points-payment">
     <template>
         <style include="iron-flex"></style>
         <style include="travel-element-styles">
@@ -22,13 +22,16 @@
             <div class="flex style-scope">
                 &nbsp; points
             </div>
+            <div class="flex style-scope">
+                <t-button id="btnGetUser" class="primary block" label="Apply"></t-button>
+            </div>
         </div>
-        <t-button id="btnGetUser" class="primary block" label="Apply"></t-button>
+        
     </template>
 </dom-module>
 <script>
 Polymer({
-    is: "t-points-oayment",
+    is: "t-points-payment",
 
     properties: {}
 });
