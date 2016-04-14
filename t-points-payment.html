@@ -107,26 +107,8 @@ Example:
             type:Boolean,
             value:false,
             reflectToAttribute: true
-        }
-    },
-
-    _showPointSection: function  (argument) {
-        // body...
-        this.showPointsBlk = !this.showPointsBlk;
-    },
-    _applyPoints: function ()
-    {        
-       this.showPointsBlk = !this.showPointsBlk;
-       this.pointsApplied = !this.pointsApplied;
-       //this.querySelector(".t-points-block").className += " pointsApplied"
-    },
-    _removeAppliedPoints: function()
-    {        
-        this.pointsApplied = !this.pointsApplied;
-        //this.querySelector('section').classList.remove('pointsApplied')
-    }
-});
-        properties: {
+        },
+    
 
             /**
              * fare of selected room
@@ -283,6 +265,22 @@ Example:
             return this.roomFare.components.find(function(component, index, array) {
                 return component.type.toLowerCase() === name.toLowerCase();
             });
+        },
+
+        _showPointSection: function  (argument) {
+            // body...
+            this.showPointsBlk = !this.showPointsBlk;
+        },
+        _applyPoints: function ()
+        {        
+           this.showPointsBlk = !this.showPointsBlk;
+           this.pointsApplied = !this.pointsApplied;
+           //this.querySelector(".t-points-block").className += " pointsApplied"
+        },
+        _removeAppliedPoints: function()
+        {        
+            this.pointsApplied = !this.pointsApplied;
+            //this.querySelector('section').classList.remove('pointsApplied')
         }
     });
 </script>
