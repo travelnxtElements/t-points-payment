@@ -13,32 +13,119 @@ Example:
 <dom-module id="t-points-payment">
     <template>
         <style include="iron-flex"></style>
+        <style include="iron-flex-alignment"></style>        
         <style include="travel-element-styles">
+         .t-points-block{
+            border: 1px dashed var(--t-points-border-color, --default-primary-color);
+            display: block;
+         }
+         :host([points-applied]) .t-points-block
+         {
+            border: 1px dashed var(--t-points-border-applied-color, --success-color);
+         }
+        .pointmark
+        {
+            font-size:var(--font-12,12px);
+            color: #fff;
+            border-radius:50%;
+            background: var(--bgv-price-orange,#ff9900);
+            padding: 5px;
+            width: 14px;
+            height: 14px;
+            text-align: center;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .total-points
+        {
+            padding: 10px 0;
+            margin: 10px 0;          
+        }
+        :host([points-applied]) .success
+        {
+            color: var(--t-points-success-color,--success-color);
+        }
+        :host([points-applied]) .pointmark
+        {
+            background: var(--t-points-success-color,--success-color);
+        }
         </style>
-        <div>Click here if you want to pay with points</div>
-        <br>
-        <div>Total points avilable - 21,214</div>
-        <div class="vertical-margin layout horizontal center">
-            <div class="horizontal-margin flex countryContainer style-scope">
-                I want to use
-            </div>
-            <div class="flex style-scope">
-                <t-input class="margin-bottom-large" id="securityAnswer" name="securityAnswer" error-message="You missed this." label="Points" required></t-input>
-            </div>
-            <div class="flex style-scope">
-                &nbsp; points
-            </div>
-            <div class="flex style-scope">
-                <t-button id="btnGetUser" class="primary block" label="Apply"></t-button>
-            </div>
-        </div>
+      
+       <section class$="[[pointsApplied]] section-small t-points-block">
+          <!-- Link for view total points -->
+  
+           <template is="dom-if" if="[[!pointsApplied]]">
+                <div class="layout horizontal center" >
+                    <span class="pointmark">P</span>
+                    <a class="font-14 link-style" on-click="_showPointSection" >Click here if you want to pay with points</a>
+                </div>
+            </template>
+             <template is="dom-if" if="[[pointsApplied]]">
+                <div class="layout horizontal center justified">
+                     <div class="layout horizontal center flex">
+                        <span class="pointmark">P</span>
+                        <a class="font-14 success">Points used {{pointsValue}} (USD 190.92)</a>
+                    </div>
+                     <a class="font-14 link-style" on-click="_removeAppliedPoints">remove</a>
+                </div>
+            </template>  
         
+            <!-- Link for view total points -->
+            <!-- Total points Block-->
+           <template id="points-apply-section" if="[[showPointsBlk]]" is="dom-if">
+               <div class="layout horizontal center justified total-points border-bottom" >
+                    <span class="font-16">Total points avilable</span>
+                    <span class=="font-18 primary-text">21,214</span>
+                </div>
+               
+                <div class="layout horizontal center justified">
+                    <div class="layout horizontal center flex">
+                        <div>I want to use &nbsp;</div>                
+                        <div><t-input id="securityAnswer" name="securityAnswer" error-message="You missed this." value="{{pointsValue}}" label="Points" no-label-float required></t-input></div>
+                        <div>&nbsp; Points</div>                 
+                    </div>
+                    <div>
+                        <t-button id="btnGetUser" class="primary block" label="Apply" on-click="_applyPoints" ></t-button>
+                    </div>
+                </div>
+            </template>
+            <!-- Total points Block-->
+        </section>
+         
     </template>
 </dom-module>
 <script>
     Polymer({
         is: "t-points-payment",
 
+    properties: {
+        showPointsBlk:{
+            type:Boolean,
+            value:false
+        },
+         pointsApplied:{
+            type:Boolean,
+            value:false,
+            reflectToAttribute: true
+        }
+    },
+
+    _showPointSection: function  (argument) {
+        // body...
+        this.showPointsBlk = !this.showPointsBlk;
+    },
+    _applyPoints: function ()
+    {        
+       this.showPointsBlk = !this.showPointsBlk;
+       this.pointsApplied = !this.pointsApplied;
+       //this.querySelector(".t-points-block").className += " pointsApplied"
+    },
+    _removeAppliedPoints: function()
+    {        
+        this.pointsApplied = !this.pointsApplied;
+        //this.querySelector('section').classList.remove('pointsApplied')
+    }
+});
         properties: {
 
             /**
