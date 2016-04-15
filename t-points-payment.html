@@ -6,6 +6,12 @@
 <!--
 `t-points-payment` is a component used for points payment
 It displays points and handles split payment functionality.
+Events:
+
+    't-points-payment-breakup-change' event gets fired when -
+        1. points are redeemed
+        2. redeemed points are reset.
+        
 Example:
 
     <t-points-payment></t-points-payment>
@@ -110,195 +116,198 @@ Example:
     </template>
 </dom-module>
 <script>
-Polymer({
-    is: "t-points-payment",
+    Polymer({
+        is: "t-points-payment",
 
-    properties: {
+        properties: {
+            /**
+             * Handles visibility of points section
+             * section includes user points, points to be redeemed & fare breakup after points redemption
+             */
+            showPointsSection:{
+                type:Boolean,
+                value:false
+            },
 
-        showPointsSection:{
-            type:Boolean,
-            value:false
+            /**
+             * fare of selected room
+             * holds values for fare, points and point factor
+             */
+            roomFare: {
+                type: Object,
+                vallue: {},
+                observer: '_onFareChanged'
+            },
+
+            /**
+             * Toogles between point redemption view and fare breakup view. 
+             */
+            showBreakup: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+
+            /**
+             * User points information
+             */
+            userPoints: {
+                type: Number,
+                vallue: 0
+            },
+
+            /**
+             * points selected to be reedemed
+             */
+            pointsToBeUsed: {
+                type: Number,
+                value: 0
+            },
+
+            /**
+             * room fare
+             */
+            totalFare: {
+                type: Number,
+                value: 0
+            },
+
+            /**
+             * room fare points equivalent
+             */
+            farePoints: {
+                type: Number,
+                value: 0
+            },
+
+            /**
+             * points conversion factor
+             */
+            pointsFactor: {
+                type: Number,
+                value: 0
+            },
+
+            /**
+             * currency string
+             */
+            currency: {
+                type: String,
+                value: ''
+            },
+
+            /**
+             * fare amount payable by points
+             */
+            payableByPoints: {
+                type: Number,
+                value: 0
+            },
+
+            /**
+             * fare amount payable by card
+             */
+            payableByCard: {
+                type: Number,
+                value: 0
+            }
         },
 
-        /**
-         * fare of selected room
-         * holds values for fare, points and point factor
-         */
-        roomFare: {
-            type: Object,
-            vallue: {},
-            observer: '_onFareChanged'
+        _onFareChanged: function() {
+            if (this.hidden || !this.roomFare || !this.userPoints)
+                return;
+
+            this.userPoints = Math.ceil(parseFloat(this.userPoints));
+
+            this._getPointsFactor();
+            this._getPointsToBeUsed();
         },
 
-        /**
-         * flag for transition flow
-         */
-        showBreakup: {
-            type: Boolean,
-            value: false,
-            reflectToAttribute: true
+        _getPointsToBeUsed: function() {
+            this._getFarePoints();
+
+            if (!this.farePoints)
+                return;
+
+            this.pointsToBeUsed = Math.ceil(parseFloat(this.userPoints > this.farePoints ? this.farePoints : this.userPoints));
+
+            this.maxPoints = this.pointsToBeUsed;
         },
 
-        /**
-         * User points information
-         */
-        userPoints: {
-            type: Number,
-            vallue: 0
+        _getFarePoints: function() {
+            var totalFare = this._getComponentByName('TotalFare');
+
+            if (!totalFare)
+                return;
+
+            this.totalFare = totalFare.money.amount;
+            this.currency = totalFare.money.currency;
+
+            var pointComponent = totalFare.components.find(function(component, index, array) {
+                return component.currency.toLowerCase() === "points";
+            });
+
+            if (pointComponent) {
+                this.farePoints = Math.ceil(parseFloat(pointComponent.amount));
+            }
         },
 
-        /**
-         * points selected to be reedemed
-         */
-        pointsToBeUsed: {
-            type: Number,
-            value: 0
+        _getPointsFactor: function() {
+
+            if (!this.roomFare.equivalents || !this.roomFare.equivalents.length) {
+                return;
+            }
+
+            var pointEquivalent = this.roomFare.equivalents.find(function(equivalent, index, array) {
+                return equivalent.currency.toLowerCase() === "points";
+            });
+
+            if (pointEquivalent) {
+                this.pointsFactor = pointEquivalent.factor;
+            }
         },
 
-        /**
-         * room fare points equivalent
-         */
-        farePoints: {
-            type: Number,
-            value: 0
+        _splitPayable: function(e) {
+            if (!this.$$('#pointsInput').validate()) {
+                return;
+            }
+
+            this.payableByPoints = this.pointsToBeUsed * this.pointsFactor > this.totalFare ? this.totalFare : this.pointsToBeUsed * this.pointsFactor;
+            this.payableByPoints = Math.round(this.payableByPoints * 100) / 100;
+            this.payableByCard = Math.round((this.totalFare - this.payableByPoints) * 100) / 100;
+
+            this.fire('t-points-payment-breakup-change', {
+                resetData : false,
+                isSplitPayment: this.payableByCard > 0,
+                points: this.pointsToBeUsed,
+                amount: this.payableByCard,
+                currency: this.currency
+            });
+
+            this.showBreakup = true;
+            this.showPointsSection = true;
         },
 
-        /**
-         * points conversion factor
-         */
-        pointsFactor: {
-            type: Number,
-            value: 0
+        _resetView: function() {
+            this.showBreakup = false;
+            this.showPointsSection=  false;
+            this.fire('t-points-payment-breakup-change', {
+                resetData : true
+            });
         },
 
-        /**
-         * tottal room fare
-         */
-        totalFare: {
-            type: Number,
-            value: 0
+        _getComponentByName: function(name) {
+            if (!this.roomFare.components || !this.roomFare.components.length) {
+                return null;
+            }
+
+            return this.roomFare.components.find(function(component, index, array) {
+                return component.type.toLowerCase() === name.toLowerCase();
+            });
         },
 
-        /**
-         * currency string
-         */
-        currency: {
-            type: String,
-            value: ''
-        },
-
-        /**
-         * fare amount payable by points
-         */
-        payableByPoints: {
-            type: Number,
-            value: 0
-        },
-
-        /**
-         * fare amount payable by card
-         */
-        payableByCard: {
-            type: Number,
-            value: 0
+        _showPointSection: function  (argument) {
+            this.showPointsSection = !this.showPointsSection;
         }
-    },
-
-    _onFareChanged: function() {
-        if (this.hidden || !this.roomFare || !this.userPoints)
-            return;
-
-        this.userPoints = Math.ceil(parseFloat(this.userPoints));
-
-        this._getPointsFactor();
-        this._getPointsToBeUsed();
-    },
-
-    _getPointsToBeUsed: function() {
-        this._getFarePoints();
-
-        if (!this.farePoints)
-            return;
-
-        this.pointsToBeUsed = Math.ceil(parseFloat(this.userPoints > this.farePoints ? this.farePoints : this.userPoints));
-
-        this.maxPoints = this.pointsToBeUsed;
-    },
-
-    _getFarePoints: function() {
-        var totalFare = this._getComponentByName('TotalFare');
-
-        if (!totalFare)
-            return;
-
-        this.totalFare = totalFare.money.amount;
-        this.currency = totalFare.money.currency;
-
-        var pointComponent = totalFare.components.find(function(component, index, array) {
-            return component.currency.toLowerCase() === "points";
-        });
-
-        if (pointComponent) {
-            this.farePoints = Math.ceil(parseFloat(pointComponent.amount));
-        }
-    },
-
-    _getPointsFactor: function() {
-
-        if (!this.roomFare.equivalents || !this.roomFare.equivalents.length) {
-            return;
-        }
-
-        var pointEquivalent = this.roomFare.equivalents.find(function(equivalent, index, array) {
-            return equivalent.currency.toLowerCase() === "points";
-        });
-
-        if (pointEquivalent) {
-            this.pointsFactor = pointEquivalent.factor;
-        }
-    },
-
-    _splitPayable: function(e) {
-        if (!this.$$('#pointsInput').validate()) {
-            return;
-        }
-
-        this.payableByPoints = this.pointsToBeUsed * this.pointsFactor > this.totalFare ? this.totalFare : this.pointsToBeUsed * this.pointsFactor;
-        this.payableByPoints = Math.round(this.payableByPoints * 100) / 100;
-        this.payableByCard = Math.round((this.totalFare - this.payableByPoints) * 100) / 100;
-
-        this.fire('t-points-payment-breakup-change', {
-            resetData : false,
-            isSplitPayment: this.payableByCard > 0,
-            points: this.pointsToBeUsed,
-            amount: this.payableByCard,
-            currency: this.currency
-        });
-
-        this.showBreakup = true;
-        this.showPointsSection = true;
-    },
-
-    _resetView: function() {
-        this.showBreakup = false;
-        this.showPointsSection=  false;
-        this.fire('t-points-payment-breakup-change', {
-            resetData : true
-        });
-    },
-
-    _getComponentByName: function(name) {
-        if (!this.roomFare.components || !this.roomFare.components.length) {
-            return null;
-        }
-
-        return this.roomFare.components.find(function(component, index, array) {
-            return component.type.toLowerCase() === name.toLowerCase();
-        });
-    },
-
-    _showPointSection: function  (argument) {
-        this.showPointsSection = !this.showPointsSection;
-    }
-});
+    });
 </script>
