@@ -11,7 +11,7 @@ Events:
     't-points-payment-breakup-change' event gets fired when -
         1. points are redeemed
         2. redeemed points are reset.
-        
+
 Example:
 
     <t-points-payment></t-points-payment>
@@ -21,14 +21,17 @@ Example:
         <style include="iron-flex"></style>
         <style include="iron-flex-alignment"></style>        
         <style include="travel-element-styles">
+
          .t-points-block{
             border: 1px dashed var(--t-points-border-color, --default-primary-color);
             display: block;
          }
+
          :host([points-applied]) .t-points-block
          {
             border: 1px dashed var(--t-points-border-applied-color, --success-color);
          }
+
         .pointmark
         {
             font-size:var(--font-12,12px);
@@ -42,18 +45,25 @@ Example:
             display: inline-block;
             margin-right: 10px;
         }
+
         .total-points
         {
             padding: 10px 0;
             margin: 10px 0;          
         }
+
         :host([points-applied]) .success
         {
             color: var(--t-points-success-color,--success-color);
         }
+
         :host([show-breakup]) .pointmark
         {
             background: var(--t-points-success-color,--success-color);
+        }
+        
+        .item{
+            padding: 10px 0;
         }
         </style>
       
@@ -103,14 +113,21 @@ Example:
 
         </section>
         <template id="points-apply-section" if="[[showPointsSection]]" is="dom-if">
-            <template is="dom-if" if="[[showBreakup]]">      
-                <br>
-                <div>Payable by Points : <span>{{currency}} {{payableByPoints}}</span></div>
-                <br>
-                <template is="dom-if" if="[[payableByCard]]">
-                    <div>Payable by Card : <span>{{currency}} {{payableByCard}}</span></div>
-                    <br>
-                </template>
+            <template is="dom-if" if="[[showBreakup]]">
+                <div class="layout vertical flex">
+                    <div class="layout horizontal item border-bottom insurance">
+                        <span class="secondary-text">Payable by Points</span>
+                        <span class="flex"></span>
+                        <span>[[currency]] [[payableByPoints]]</span>
+                    </div>
+                    <template is="dom-if" if="[[payableByCard]]">
+                        <div class="layout horizontal item border-bottom insurance">
+                            <span class="secondary-text">Payable by Card</span>
+                            <span class="flex"></span>
+                            <span>[[currency]] [[payableByCard]]</span>
+                        </div>
+                    </template>
+                </div>
             </template>
         </template>
     </template>
