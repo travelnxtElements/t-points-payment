@@ -45,242 +45,260 @@ Example:
         {
             color: var(--t-points-success-color,--success-color);
         }
-        :host([points-applied]) .pointmark
+        :host([show-breakup]) .pointmark
         {
             background: var(--t-points-success-color,--success-color);
         }
         </style>
       
-       <section class$="[[pointsApplied]] section-small t-points-block">
+       <section class$="[[showBreakup]] section-small t-points-block">
           <!-- Link for view total points -->
   
-           <template is="dom-if" if="[[!pointsApplied]]">
+           <template is="dom-if" if="[[!showBreakup]]">
                 <div class="layout horizontal center" >
                     <span class="pointmark">P</span>
                     <a class="font-14 link-style" on-click="_showPointSection" >Click here if you want to pay with points</a>
                 </div>
             </template>
-             <template is="dom-if" if="[[pointsApplied]]">
+             <template is="dom-if" if="[[showBreakup]]">
                 <div class="layout horizontal center justified">
                      <div class="layout horizontal center flex">
                         <span class="pointmark">P</span>
-                        <a class="font-14 success">Points used {{pointsValue}} (USD 190.92)</a>
+                        <a class="font-14 success">Points used {{pointsToBeUsed}} ({{currency}} {{payableByPoints}})</a>
                     </div>
-                     <a class="font-14 link-style" on-click="_removeAppliedPoints">remove</a>
+                     <a class="font-14 link-style" on-click="_resetView">remove</a>
                 </div>
             </template>  
         
             <!-- Link for view total points -->
             <!-- Total points Block-->
-           <template id="points-apply-section" if="[[showPointsBlk]]" is="dom-if">
-               <div class="layout horizontal center justified total-points border-bottom" >
-                    <span class="font-16">Total points avilable</span>
-                    <span class=="font-18 primary-text">21,214</span>
-                </div>
-               
-                <div class="layout horizontal center justified">
-                    <div class="layout horizontal center flex">
-                        <div>I want to use &nbsp;</div>                
-                        <div><t-input id="securityAnswer" name="securityAnswer" error-message="You missed this." value="{{pointsValue}}" label="Points" no-label-float required></t-input></div>
-                        <div>&nbsp; Points</div>                 
+            <template id="points-apply-section" if="[[showPointsSection]]" is="dom-if">
+               <template id="points-apply-section" if="[[!showBreakup]]" is="dom-if">
+                   <div class="layout horizontal center justified total-points border-bottom" >
+                        <span class="font-16">Total points avilable</span>
+                        <span class=="font-18 primary-text">{{userPoints}}</span>
                     </div>
-                    <div>
-                        <t-button id="btnGetUser" class="primary block" label="Apply" on-click="_applyPoints" ></t-button>
+                   
+                    <div class="layout horizontal center justified">
+                        <div class="layout horizontal center flex">
+                            <div>I want to use &nbsp;</div>                
+                            <div>
+                                <t-input id="pointsInput" type="Number" min="1" max="[[maxPoints]]" error-message="Invalid points." value="{{pointsToBeUsed}}" label="Points" no-label-float required></t-input>
+                            </div>
+                            <div>&nbsp; Points</div>                 
+                        </div>
+                        <div>
+                            <t-button class="primary block" label="Apply" on-click="_splitPayable" ></t-button>
+                        </div>
                     </div>
-                </div>
+                </template>
             </template>
             <!-- Total points Block-->
+
         </section>
-         
+        <template id="points-apply-section" if="[[showPointsSection]]" is="dom-if">
+            <template is="dom-if" if="[[showBreakup]]">      
+                <br>
+                <div>Payable by Points : <span>{{currency}} {{payableByPoints}}</span></div>
+                <br>
+                <template is="dom-if" if="[[payableByCard]]">
+                    <div>Payable by Card : <span>{{currency}} {{payableByCard}}</span></div>
+                    <br>
+                </template>
+            </template>
+        </template>
     </template>
 </dom-module>
 <script>
-    Polymer({
-        is: "t-points-payment",
+Polymer({
+    is: "t-points-payment",
 
     properties: {
-        showPointsBlk:{
+
+        showPointsSection:{
             type:Boolean,
             value:false
         },
-         pointsApplied:{
-            type:Boolean,
-            value:false,
+
+        /**
+         * fare of selected room
+         * holds values for fare, points and point factor
+         */
+        roomFare: {
+            type: Object,
+            vallue: {},
+            observer: '_onFareChanged'
+        },
+
+        /**
+         * flag for transition flow
+         */
+        showBreakup: {
+            type: Boolean,
+            value: false,
             reflectToAttribute: true
         },
-    
 
-            /**
-             * fare of selected room
-             * holds values for fare, points and point factor
-             */
-            roomFare: {
-                type: Object,
-                vallue: {},
-                observer: '_onFareChanged'
-            },
-
-            /**
-             * flag for transition flow
-             */
-            isBreakupVisible: {
-                type: Boolean,
-                value: false
-            },
-
-            /**
-             * User points information
-             */
-            userPoints: {
-                type: Number,
-                vallue: 0
-            },
-
-            /**
-             * points selected to be reedemed
-             */
-            pointsToBeUsed: {
-                type: Number,
-                value: 0
-            },
-
-            /**
-             * room fare points equivalent
-             */
-            farePoints: {
-                type: Number,
-                value: 0
-            },
-
-            /**
-             * points conversion factor
-             */
-            pointsFactor: {
-                type: Number,
-                value: 0
-            },
-
-            /**
-             * tottal room fare
-             */
-            totalFare: {
-                type: Number,
-                value: 0
-            },
-
-            /**
-             * currency string
-             */
-            currency: {
-                type: String,
-                value: ''
-            },
-
-            /**
-             * fare amount payable by points
-             */
-            payableByPoints: {
-                type: Number,
-                value: 0
-            },
-
-            /**
-             * fare amount payable by card
-             */
-            payableByCard: {
-                type: Number,
-                value: 0
-            }
+        /**
+         * User points information
+         */
+        userPoints: {
+            type: Number,
+            vallue: 0
         },
 
-        _onFareChanged: function() {
-            if (!this.roomFare || !this.userPoints)
-                return;
-
-            this.userPoints = Math.ceil(parseFloat(this.userPoints));
-
-            this._getPointsFactor();
-            this._getPointsToBeUsed();
+        /**
+         * points selected to be reedemed
+         */
+        pointsToBeUsed: {
+            type: Number,
+            value: 0
         },
 
-        _getPointsToBeUsed: function() {
-            this._getFarePoints();
-
-            if (!this.farePoints)
-                return;
-
-            this.pointsToBeUsed = Math.ceil(parseFloat(this.userPoints > this.farePoints ? this.farePoints : this.userPoints));
-
-            this.maxPoints = this.pointsToBeUsed;
+        /**
+         * room fare points equivalent
+         */
+        farePoints: {
+            type: Number,
+            value: 0
         },
 
-        _getFarePoints: function() {
-            var totalFare = this._getComponentByName('TotalFare');
-
-            if (!totalFare)
-                return;
-
-            this.totalFare = totalFare.money.amount;
-            this.currency = totalFare.money.currency;
-
-            var pointComponent = totalFare.components.find(function(component, index, array) {
-                return component.currency.toLowerCase() === "points";
-            });
-
-            if (pointComponent) {
-                this.farePoints = Math.ceil(parseFloat(pointComponent.amount));
-            }
+        /**
+         * points conversion factor
+         */
+        pointsFactor: {
+            type: Number,
+            value: 0
         },
 
-        _getPointsFactor: function() {
-
-            var pointEquivalent = this.roomFare.equivalents.find(function(equivalent, index, array) {
-                return equivalent.currency.toLowerCase() === "points";
-            });
-
-            if (pointEquivalent) {
-                this.pointsFactor = pointEquivalent.factor;
-            }
+        /**
+         * tottal room fare
+         */
+        totalFare: {
+            type: Number,
+            value: 0
         },
 
-        _splitPayable: function(e) {
-            if (this.$$('#pointsInput') && this.$$('#pointsInput').validate()) {
-                this.payableByPoints = this.pointsToBeUsed * this.pointsFactor > this.totalFare ? this.totalFare : this.pointsToBeUsed * this.pointsFactor;
-                this.payableByPoints = Math.round(this.payableByPoints * 100) / 100;
-                this.payableByCard = Math.round((this.totalFare - this.payableByPoints) * 100) / 100;
-
-                this.isBreakupVisible = true;
-            }
+        /**
+         * currency string
+         */
+        currency: {
+            type: String,
+            value: ''
         },
 
-        _resetView: function() {
-            this.isBreakupVisible = false;
+        /**
+         * fare amount payable by points
+         */
+        payableByPoints: {
+            type: Number,
+            value: 0
         },
 
-        _getComponentByName: function(name) {
-            if (!this.roomFare.components || !this.roomFare.components.length) {
-                return null;
-            }
-
-            return this.roomFare.components.find(function(component, index, array) {
-                return component.type.toLowerCase() === name.toLowerCase();
-            });
-        },
-
-        _showPointSection: function  (argument) {
-            // body...
-            this.showPointsBlk = !this.showPointsBlk;
-        },
-        _applyPoints: function ()
-        {        
-           this.showPointsBlk = !this.showPointsBlk;
-           this.pointsApplied = !this.pointsApplied;
-           //this.querySelector(".t-points-block").className += " pointsApplied"
-        },
-        _removeAppliedPoints: function()
-        {        
-            this.pointsApplied = !this.pointsApplied;
-            //this.querySelector('section').classList.remove('pointsApplied')
+        /**
+         * fare amount payable by card
+         */
+        payableByCard: {
+            type: Number,
+            value: 0
         }
-    });
+    },
+
+    _onFareChanged: function() {
+        if (this.hidden || !this.roomFare || !this.userPoints)
+            return;
+
+        this.userPoints = Math.ceil(parseFloat(this.userPoints));
+
+        this._getPointsFactor();
+        this._getPointsToBeUsed();
+    },
+
+    _getPointsToBeUsed: function() {
+        this._getFarePoints();
+
+        if (!this.farePoints)
+            return;
+
+        this.pointsToBeUsed = Math.ceil(parseFloat(this.userPoints > this.farePoints ? this.farePoints : this.userPoints));
+
+        this.maxPoints = this.pointsToBeUsed;
+    },
+
+    _getFarePoints: function() {
+        var totalFare = this._getComponentByName('TotalFare');
+
+        if (!totalFare)
+            return;
+
+        this.totalFare = totalFare.money.amount;
+        this.currency = totalFare.money.currency;
+
+        var pointComponent = totalFare.components.find(function(component, index, array) {
+            return component.currency.toLowerCase() === "points";
+        });
+
+        if (pointComponent) {
+            this.farePoints = Math.ceil(parseFloat(pointComponent.amount));
+        }
+    },
+
+    _getPointsFactor: function() {
+
+        if (!this.roomFare.equivalents || !this.roomFare.equivalents.length) {
+            return;
+        }
+
+        var pointEquivalent = this.roomFare.equivalents.find(function(equivalent, index, array) {
+            return equivalent.currency.toLowerCase() === "points";
+        });
+
+        if (pointEquivalent) {
+            this.pointsFactor = pointEquivalent.factor;
+        }
+    },
+
+    _splitPayable: function(e) {
+        if (!this.$$('#pointsInput').validate()) {
+            return;
+        }
+
+        this.payableByPoints = this.pointsToBeUsed * this.pointsFactor > this.totalFare ? this.totalFare : this.pointsToBeUsed * this.pointsFactor;
+        this.payableByPoints = Math.round(this.payableByPoints * 100) / 100;
+        this.payableByCard = Math.round((this.totalFare - this.payableByPoints) * 100) / 100;
+
+        this.fire('t-points-payment-breakup-change', {
+            resetData : false,
+            isSplitPayment: this.payableByCard > 0,
+            points: this.pointsToBeUsed,
+            amount: this.payableByCard,
+            currency: this.currency
+        });
+
+        this.showBreakup = true;
+        this.showPointsSection = true;
+    },
+
+    _resetView: function() {
+        this.showBreakup = false;
+        this.showPointsSection=  false;
+        this.fire('t-points-payment-breakup-change', {
+            resetData : true
+        });
+    },
+
+    _getComponentByName: function(name) {
+        if (!this.roomFare.components || !this.roomFare.components.length) {
+            return null;
+        }
+
+        return this.roomFare.components.find(function(component, index, array) {
+            return component.type.toLowerCase() === name.toLowerCase();
+        });
+    },
+
+    _showPointSection: function  (argument) {
+        this.showPointsSection = !this.showPointsSection;
+    }
+});
 </script>
