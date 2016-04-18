@@ -21,50 +21,49 @@ Example:
         <style include="iron-flex"></style>
         <style include="iron-flex-alignment"></style>        
         <style include="travel-element-styles">
+            .t-points-block{
+                border: 1px dashed var(--t-points-border-color, --default-primary-color);
+                display: block;
+            }
 
-         .t-points-block{
-            border: 1px dashed var(--t-points-border-color, --default-primary-color);
-            display: block;
-         }
+            :host([points-applied]) .t-points-block
+            {
+                border: 1px dashed var(--t-points-border-applied-color, --success-color);
+            }
 
-         :host([points-applied]) .t-points-block
-         {
-            border: 1px dashed var(--t-points-border-applied-color, --success-color);
-         }
+            .pointmark
+            {
+                font-size:var(--font-12,12px);
+                color: #fff;
+                border-radius:50%;
+                background: var(--bgv-price-orange,#ff9900);
+                padding: 5px;
+                width: 14px;
+                height: 14px;
+                text-align: center;
+                display: inline-block;
+                margin-right: 10px;
+            }
 
-        .pointmark
-        {
-            font-size:var(--font-12,12px);
-            color: #fff;
-            border-radius:50%;
-            background: var(--bgv-price-orange,#ff9900);
-            padding: 5px;
-            width: 14px;
-            height: 14px;
-            text-align: center;
-            display: inline-block;
-            margin-right: 10px;
-        }
+            .total-points
+            {
+                padding: 10px 0;
+                margin: 10px 0;          
+            }
 
-        .total-points
-        {
-            padding: 10px 0;
-            margin: 10px 0;          
-        }
+            :host([points-applied]) .success
+            {
+                color: var(--t-points-success-color,--success-color);
+            }
 
-        :host([points-applied]) .success
-        {
-            color: var(--t-points-success-color,--success-color);
-        }
-
-        :host([show-breakup]) .pointmark
-        {
-            background: var(--t-points-success-color,--success-color);
-        }
-        
-        .item{
-            padding: 10px 0;
-        }
+            :host([show-breakup]) .pointmark
+            {
+                background: var(--t-points-success-color,--success-color);
+            }
+            
+            .item{
+                padding: 10px 0;
+            }
         </style>
       
        <section class$="[[showBreakup]] section-small t-points-block">
@@ -110,9 +109,8 @@ Example:
                 </template>
             </template>
             <!-- Total points Block-->
-
-        </section>
-        <template id="points-apply-section" if="[[showPointsSection]]" is="dom-if">
+        </section>        
+        <template is="dom-if" id="points-apply-section" if="[[showPointsSection]]">
             <template is="dom-if" if="[[showBreakup]]">
                 <div class="layout vertical flex">
                     <div class="layout horizontal item border-bottom insurance">
@@ -234,7 +232,7 @@ Example:
             if (this.hidden || !this.roomFare || !this.userPoints)
                 return;
 
-            this.userPoints = Math.ceil(parseFloat(this.userPoints));
+            this.userPoints = Math.floor(parseFloat(this.userPoints));
 
             this._getPointsFactor();
             this._getPointsToBeUsed();
