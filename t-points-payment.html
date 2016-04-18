@@ -103,7 +103,7 @@ Example:
                             <div>&nbsp; Points</div>                 
                         </div>
                         <div>
-                            <t-button class="primary block" label="Apply" on-tap="_splitPayable" ></t-button>
+                            <t-button class="primary block" disabled$="[[!userPoints]]" label="Apply" on-tap="_splitPayable" ></t-button>
                         </div>
                     </div>
                 </template>
@@ -229,7 +229,7 @@ Example:
         },
 
         _onFareChanged: function() {
-            if (this.hidden || !this.roomFare || !this.userPoints)
+            if (this.hidden || !this.roomFare)
                 return;
 
             this.userPoints = Math.floor(parseFloat(this.userPoints));
@@ -283,6 +283,11 @@ Example:
         },
 
         _splitPayable: function(e) {
+
+            if (this.userPoints <= 0) {
+                return;                
+            }
+
             if (!this.$$('#pointsInput').validate()) {
                 return;
             }
@@ -321,7 +326,7 @@ Example:
             });
         },
 
-        _showPointSection: function  (argument) {
+        _showPointSection: function  () {
             this.showPointsSection = !this.showPointsSection;
         }
     });
