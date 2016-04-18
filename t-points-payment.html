@@ -70,9 +70,9 @@ Example:
           <!-- Link for view total points -->
   
            <template is="dom-if" if="[[!showBreakup]]">
-                <div class="layout horizontal center" >
+                <div class="layout horizontal center" on-tap="_showPointSection">
                     <span class="pointmark">P</span>
-                    <a class="font-14 link-style" on-click="_showPointSection" >Click here if you want to pay with points</a>
+                    <a class="font-14 link-style">Click here if you want to pay with points</a>
                 </div>
             </template>
              <template is="dom-if" if="[[showBreakup]]">
@@ -81,7 +81,7 @@ Example:
                         <span class="pointmark">P</span>
                         <a class="font-14 success">Points used {{pointsToBeUsed}} ({{currency}} {{payableByPoints}})</a>
                     </div>
-                     <a class="font-14 link-style" on-click="_resetView">remove</a>
+                     <a class="font-14 link-style" on-tap="_resetView">remove</a>
                 </div>
             </template>  
         
@@ -103,7 +103,7 @@ Example:
                             <div>&nbsp; Points</div>                 
                         </div>
                         <div>
-                            <t-button class="primary block" label="Apply" on-click="_splitPayable" ></t-button>
+                            <t-button class="primary block" label="Apply" on-tap="_splitPayable" ></t-button>
                         </div>
                     </div>
                 </template>
