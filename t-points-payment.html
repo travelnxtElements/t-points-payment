@@ -26,20 +26,20 @@ Example:
                 display: block;
             }
 
-            :host([points-applied]) .t-points-block
+            :host([show-breakup]) .t-points-block
             {
                 border: 1px dashed var(--t-points-border-applied-color, --success-color);
             }
 
             .pointmark
             {
-                font-size:var(--font-12,12px);
+                font-size:var(--font-14, 14px);
                 color: #fff;
                 border-radius:50%;
                 background: var(--bgv-price-orange,#ff9900);
-                padding: 5px;
-                width: 14px;
-                height: 14px;
+                padding: 8px 5px;
+                width: 22px;
+                height: 16px;
                 text-align: center;
                 display: inline-block;
                 margin-right: 10px;
@@ -51,7 +51,7 @@ Example:
                 margin: 10px 0;          
             }
 
-            :host([points-applied]) .success
+            :host([show-breakup]) .success
             {
                 color: var(--t-points-success-color,--success-color);
             }
@@ -90,17 +90,17 @@ Example:
             <template id="points-apply-section" if="[[showPointsSection]]" is="dom-if">
                <template id="points-apply-section" if="[[!showBreakup]]" is="dom-if">
                    <div class="layout horizontal center justified total-points border-bottom" >
-                        <span class="font-16">Total points available</span>
-                        <span class=="font-18 primary-text">{{userPoints}}</span>
+                        <span class="font-16 secondary-text ">Total points available</span>
+                        <span class="font-18 primary-text">{{userPoints}}</span>
                     </div>
                    
                     <div class="layout horizontal center justified">
-                        <div class="layout horizontal center flex">
-                            <div>I want to use &nbsp;</div>                
-                            <div>
-                                <t-input id="pointsInput" type="Number" min="1" max="[[maxPoints]]" error-message="Invalid points." value="{{pointsToBeUsed}}" label="Points" no-label-float required></t-input>
+                        <div class="layout horizontal center">
+                            <div class="font-16 secondary-text">I want to use &nbsp;</div>                
+                            <div class="flex">
+                                <t-input id="pointsInput" type="text" min="1" max="[[maxPoints]]" error-message="Invalid points." value="{{pointsToBeUsed}}" label="Points" no-label-float required></t-input>
                             </div>
-                            <div>&nbsp; Points</div>                 
+                            <div class="font-16 secondary-text">Points &nbsp;</div>                 
                         </div>
                         <div>
                             <t-button class="primary block" disabled$="[[!userPoints]]" label="Apply" on-tap="_splitPayable" ></t-button>
