@@ -266,7 +266,7 @@ Polymer({
         if (this.hidden || !this.roomFare)
             return;
 
-        this.userPoints = Math.floor(parseFloat(this.userPoints));
+        this.userPoints = Math.floor(parseFloat(this.userPoints || 0));
 
         this._getPointsFactor();
         this._getPointsToBeUsed();
