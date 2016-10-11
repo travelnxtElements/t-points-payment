@@ -327,8 +327,7 @@ Polymer({
             this.payableByCard = Math.round((this.totalFare - this.payableByPoints) * 100) / 100;
 
             this.fire('t-points-payment-breakup-change', {
-                resetData: false,
-                isSplitPayment: this.payableByCard > 0,
+                factor: this.pointsFactor,
                 points: this.pointsToBeUsed,
                 amount: this.payableByCard,
                 currency: this.currency
